@@ -17,7 +17,12 @@ export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
         </DialogHeader>
         {imageUrl && (
           <div className="relative w-full h-96">
-            <Image src={imageUrl || "/placeholder.svg"} alt="Lost item" fill className="object-contain rounded-lg" />
+            <Image
+              src={imageUrl.startsWith("data:") ? imageUrl : imageUrl || "/placeholder.svg"}
+              alt="Lost item"
+              fill
+              className="object-contain rounded-lg"
+            />
           </div>
         )}
       </DialogContent>

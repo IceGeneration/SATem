@@ -12,9 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CalendarIcon, Upload, AlertCircle } from "lucide-react"
+import { CalendarIcon, Upload, AlertCircle, X } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface AddItemModalProps {
   isOpen: boolean
@@ -56,6 +57,8 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     custom_location: "",
     found_date: new Date(),
   })
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState("")
@@ -77,6 +80,45 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     return Object.keys(newErrors).length === 0
   }
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setSubmitError("Image size must be less than 5MB")
+        return
+      }
+
+      // Check file type
+      if (!file.type.startsWith("image/")) {
+        setSubmitError("Please select a valid image file")
+        return
+      }
+
+      setSelectedImage(file)
+
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+
+      // Clear any previous errors
+      setSubmitError("")
+    }
+  }
+
+  const removeImage = () => {
+    setSelectedImage(null)
+    setImagePreview(null)
+    // Reset file input
+    const fileInput = document.getElementById("image-upload") as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ""
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -86,6 +128,17 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     setSubmitError("")
 
     try {
+      let imageUrl = "/placeholder.svg?height=300&width=300"
+
+      // If image is selected, convert to base64 for now
+      if (selectedImage) {
+        const reader = new FileReader()
+        imageUrl = await new Promise((resolve) => {
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(selectedImage)
+        })
+      }
+
       const submitData = {
         object_name: formData.object_name.trim(),
         description: formData.description.trim(),
@@ -94,7 +147,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
         student_nickname: formData.student_nickname.trim(),
         location_found: formData.location_found === "Other" ? formData.custom_location.trim() : formData.location_found,
         found_date: format(formData.found_date, "yyyy-MM-dd"),
-        image_url: "/placeholder.svg?height=300&width=300",
+        image_url: imageUrl,
       }
 
       const success = await onAdd(submitData)
@@ -111,6 +164,8 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
           custom_location: "",
           found_date: new Date(),
         })
+        setSelectedImage(null)
+        setImagePreview(null)
         setErrors({})
         onClose()
       }
@@ -139,6 +194,8 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
       custom_location: "",
       found_date: new Date(),
     })
+    setSelectedImage(null)
+    setImagePreview(null)
     setErrors({})
     setSubmitError("")
     onClose()
@@ -312,33 +369,54 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
           {/* Image Upload */}
           <div>
             <Label className="text-blue-700">Item Photo</Label>
-            <div className="border-2 border-dashed border-yellow-300 rounded-lg p-6 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-2 text-sm text-gray-600 mb-4">Upload a photo of the lost item</p>
-              <input
-                type="file"
-                id="image-upload"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) {
-                    // TODO: Handle file upload
-                    console.log("File selected:", file.name)
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById("image-upload")?.click()}
-                className="bg-white hover:bg-yellow-50 border-yellow-300"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Choose Image
-              </Button>
-              <p className="text-xs text-gray-500 mt-2">Supported formats: JPG, PNG, GIF (Max 5MB)</p>
-            </div>
+            {imagePreview ? (
+              <div className="border-2 border-yellow-300 rounded-lg p-4">
+                <div className="relative">
+                  <Image
+                    src={imagePreview || "/placeholder.svg"}
+                    alt="Selected image preview"
+                    width={200}
+                    height={200}
+                    className="mx-auto rounded-lg object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-sm text-green-600 text-center mt-2">Image selected successfully!</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("image-upload")?.click()}
+                  className="w-full mt-2 bg-white hover:bg-yellow-50 border-yellow-300"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Change Image
+                </Button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-yellow-300 rounded-lg p-6 text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-2 text-sm text-gray-600 mb-4">Upload a photo of the lost item</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("image-upload")?.click()}
+                  className="bg-white hover:bg-yellow-50 border-yellow-300"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choose Image
+                </Button>
+                <p className="text-xs text-gray-500 mt-2">Supported formats: JPG, PNG, GIF (Max 5MB)</p>
+              </div>
+            )}
+            <input type="file" id="image-upload" accept="image/*" className="hidden" onChange={handleImageSelect} />
           </div>
 
           <DialogFooter className="gap-2">
