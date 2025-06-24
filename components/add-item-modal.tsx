@@ -80,7 +80,34 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     return Object.keys(newErrors).length === 0
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File, maxWidth = 800, quality = 0.8): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")!
+      const img = new Image()
+
+      img.onload = () => {
+        // Calculate new dimensions
+        let { width, height } = img
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width
+          width = maxWidth
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height)
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", quality)
+        resolve(compressedDataUrl)
+      }
+
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       // Check file size (5MB limit)
@@ -97,15 +124,14 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
 
       setSelectedImage(file)
 
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
+      try {
+        // Compress image for preview and storage
+        const compressedImage = await compressImage(file)
+        setImagePreview(compressedImage)
+        setSubmitError("")
+      } catch (error) {
+        setSubmitError("Failed to process image")
       }
-      reader.readAsDataURL(file)
-
-      // Clear any previous errors
-      setSubmitError("")
     }
   }
 
@@ -130,13 +156,9 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     try {
       let imageUrl = "/placeholder.svg?height=300&width=300"
 
-      // If image is selected, convert to base64 for now
-      if (selectedImage) {
-        const reader = new FileReader()
-        imageUrl = await new Promise((resolve) => {
-          reader.onload = (e) => resolve(e.target?.result as string)
-          reader.readAsDataURL(selectedImage)
-        })
+      // Use compressed image if available
+      if (imagePreview) {
+        imageUrl = imagePreview
       }
 
       const submitData = {
@@ -389,7 +411,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-sm text-green-600 text-center mt-2">Image selected successfully!</p>
+                <p className="text-sm text-green-600 text-center mt-2">Image uploaded and compressed successfully!</p>
                 <Button
                   type="button"
                   variant="outline"
@@ -414,6 +436,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                   Choose Image
                 </Button>
                 <p className="text-xs text-gray-500 mt-2">Supported formats: JPG, PNG, GIF (Max 5MB)</p>
+                <p className="text-xs text-gray-500">Images will be automatically compressed for optimal storage</p>
               </div>
             )}
             <input type="file" id="image-upload" accept="image/*" className="hidden" onChange={handleImageSelect} />
