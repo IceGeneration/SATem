@@ -89,12 +89,12 @@ export async function POST(request: Request) {
     const itemData = {
       object_name: body.object_name,
       description: body.description,
-      full_description: body.full_description,
       image_url: body.image_url || "/placeholder.svg?height=300&width=300",
       student_number: body.student_number,
       student_nickname: body.student_nickname,
       found_date: body.found_date,
       location_found: body.location_found,
+      item_type: body.item_type || "found", // Default to "found" if not specified
       status: "available", // Always set to available on server
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

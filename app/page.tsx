@@ -10,7 +10,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-blue-800 mb-2">Welcome To</h1>
           <h2 className="text-5xl font-bold text-yellow-600">แหล่งของหาย</h2>
-          <p className="text-blue-600 mt-4 text-lg">School Lost & Found Center</p>
+          <p className="text-blue-600 mt-4 text-lg">มาตามหาของหายไปด้วยกัน !!!</p>
         </div>
         <Suspense fallback={<div className="text-center">Loading...</div>}>
           <LostFoundTable />

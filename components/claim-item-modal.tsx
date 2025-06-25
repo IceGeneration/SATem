@@ -39,7 +39,7 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
         onClose()
       }
     } catch (error: any) {
-      setError(error.message || "claim ไม่สำเร็จ")
+      setError(error.message || "ไม่สามารถรับของได้")
     } finally {
       setLoading(false)
     }
@@ -52,11 +52,27 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
     onClose()
   }
 
+  const getModalTitle = () => {
+    if (item?.item_type === "lost") {
+      return `ยืนยันเป็นเจ้าของ: ${item?.object_name}`
+    } else {
+      return `รับของ: ${item?.object_name}`
+    }
+  }
+
+  const getButtonText = () => {
+    if (item?.item_type === "lost") {
+      return loading ? "กำลังยืนยัน..." : "ยืนยันเป็นเจ้าของ"
+    } else {
+      return loading ? "กำลังรับของ..." : "รับของ"
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-blue-800">Claim Item: {item?.object_name}</DialogTitle>
+          <DialogTitle className="text-blue-800">{getModalTitle()}</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -69,39 +85,39 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="claimedBy" className="text-blue-700">
-              Claimed by (Student Number & Name) *
+              {item?.item_type === "lost" ? "ข้อมูลผู้รับคืน" : "ข้อมูลผู้รับ"} (รหัสนักเรียน และ ชื่อเล่น) *
             </Label>
             <Input
               id="claimedBy"
               value={claimedBy}
               onChange={(e) => setClaimedBy(e.target.value)}
-              placeholder="e.g., 30234 Ice"
+              placeholder="เช่น 30234 ไอซ์"
               required
               className="border-yellow-300 focus:border-blue-500"
             />
           </div>
           <div>
             <Label htmlFor="notes" className="text-blue-700">
-              Additional Notes (Optional)
+              หมายเหตุเพิ่มเติม (Optional)
             </Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional information..."
+              placeholder="ข้อมูลเพิ่มเติม..."
               className="border-yellow-300 focus:border-blue-500"
             />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
-              Cancel
+              ยกเลิก
             </Button>
             <Button
               type="submit"
               disabled={loading || !claimedBy.trim()}
               className="bg-yellow-500 hover:bg-yellow-600 text-blue-900"
             >
-              {loading ? "Claiming..." : "Claim Item"}
+              {getButtonText()}
             </Button>
           </DialogFooter>
         </form>

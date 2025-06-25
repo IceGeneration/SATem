@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { RefreshCw, Eye, Calendar, User, Plus, Database, AlertCircle } from "lucide-react"
+import { RefreshCw, Eye, Calendar, User, Plus, Database, AlertCircle, Search, Package } from "lucide-react"
 import ImageModal from "@/components/image-modal"
 import ClaimItemModal from "@/components/claim-item-modal"
 import AddItemModal from "@/components/add-item-modal"
@@ -14,13 +14,13 @@ interface LostFoundItem {
   id: number
   object_name: string
   description: string
-  full_description: string
   image_url: string
   student_number: string
   student_nickname: string
   found_date: string
   location_found: string
   status: "available" | "claimed"
+  item_type: "lost" | "found"
   claimed_by?: string
   claimed_date?: string
   claim_notes?: string
@@ -30,7 +30,6 @@ export default function LostFoundTable() {
   const [items, setItems] = useState<LostFoundItem[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [expandedDescription, setExpandedDescription] = useState<number | null>(null)
   const [claimModalOpen, setClaimModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<LostFoundItem | null>(null)
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -41,7 +40,7 @@ export default function LostFoundTable() {
     setDatabaseError(null)
     try {
       const response = await fetch("/api/lost-found", {
-        cache: "no-store", // Ensure fresh data from server
+        cache: "no-store",
       })
 
       if (response.ok) {
@@ -49,11 +48,11 @@ export default function LostFoundTable() {
         setItems(data)
       } else {
         const errorData = await response.json()
-        setDatabaseError(errorData.error || "Failed to fetch items")
+        setDatabaseError(errorData.error || "ไม่สามารถโหลดข้อมูลได้")
       }
     } catch (error) {
       console.error("Error fetching items:", error)
-      setDatabaseError("Failed to connect to database")
+      setDatabaseError("ไม่สามารถเชื่อมต่อฐานข้อมูลได้")
     } finally {
       setLoading(false)
     }
@@ -67,10 +66,6 @@ export default function LostFoundTable() {
     fetchItems()
   }
 
-  const toggleDescription = (id: number) => {
-    setExpandedDescription(expandedDescription === id ? null : id)
-  }
-
   const handleClaim = async (itemId: number, claimedBy: string, notes?: string) => {
     try {
       const response = await fetch("/api/lost-found/claim", {
@@ -80,12 +75,11 @@ export default function LostFoundTable() {
       })
 
       if (response.ok) {
-        // Auto-refresh after successful claim
         await fetchItems()
         return true
       } else {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to claim item")
+        throw new Error(errorData.error || "ไม่สามารถรับของได้")
       }
     } catch (error) {
       console.error("Error claiming item:", error)
@@ -102,12 +96,11 @@ export default function LostFoundTable() {
       })
 
       if (response.ok) {
-        // Auto-refresh after successful creation
         await fetchItems()
         return true
       } else {
         const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to add item")
+        throw new Error(errorData.error || "ไม่สามารถเพิ่มรายการได้")
       }
     } catch (error) {
       console.error("Error adding item:", error)
@@ -120,11 +113,31 @@ export default function LostFoundTable() {
     setClaimModalOpen(true)
   }
 
+  const getItemTypeDisplay = (item: LostFoundItem) => {
+    if (item.item_type === "lost") {
+      return {
+        label: "ของหาย",
+        bgColor: "bg-red-100",
+        textColor: "text-red-800",
+        badgeColor: "bg-red-500",
+        icon: <Search className="h-3 w-3" />,
+      }
+    } else {
+      return {
+        label: "ของที่เจอ",
+        bgColor: "bg-green-100",
+        textColor: "text-green-800",
+        badgeColor: "bg-green-500",
+        icon: <Package className="h-3 w-3" />,
+      }
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
         <RefreshCw className="animate-spin h-8 w-8 text-blue-600" />
-        <span className="ml-2 text-blue-600">Loading items...</span>
+        <span className="ml-2 text-blue-600">กำลังโหลด...</span>
       </div>
     )
   }
@@ -132,11 +145,11 @@ export default function LostFoundTable() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-2xl font-bold text-blue-800">Lost & Found Items</h3>
+        <h3 className="text-2xl font-bold text-blue-800">รายการของหายและของที่เจอ</h3>
         <div className="flex gap-2">
           <Button onClick={() => setAddModalOpen(true)} className="bg-green-500 hover:bg-green-600 text-white">
             <Plus className="h-4 w-4 mr-2" />
-            New Item
+            เพิ่มรายการ
           </Button>
           <Button
             onClick={handleRefresh}
@@ -144,7 +157,7 @@ export default function LostFoundTable() {
             disabled={loading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
+            รีเฟรช
           </Button>
         </div>
       </div>
@@ -154,11 +167,9 @@ export default function LostFoundTable() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Database Error:</strong> {databaseError}
+            <strong>ข้อผิดพลาดฐานข้อมูล:</strong> {databaseError}
             <br />
-            <span className="text-sm mt-1 block">
-              Please make sure Supabase is configured and the database tables are created.
-            </span>
+            <span className="text-sm mt-1 block">กรุณาตรวจสอบการตั้งค่า Supabase และการสร้างตารางฐานข้อมูล</span>
           </AlertDescription>
         </Alert>
       )}
@@ -168,17 +179,16 @@ export default function LostFoundTable() {
         <Card className="border-yellow-200">
           <CardContent className="text-center py-12">
             <Database className="mx-auto h-16 w-16 text-blue-400 mb-4" />
-            <h4 className="text-xl font-semibold text-blue-800 mb-2">Welcome to Lost & Found!</h4>
-            <p className="text-blue-600 text-lg mb-2">No items found at the moment.</p>
-            <p className="text-blue-500 text-sm mb-4">Click "New Item" to add the first lost item to get started!</p>
+            <h4 className="text-xl font-semibold text-blue-800 mb-2">ยินดีต้อนรับสู่ศูนย์รวมของหาย!</h4>
+            <p className="text-blue-600 text-lg mb-2">ยังไม่มีรายการในขณะนี้</p>
+            <p className="text-blue-500 text-sm mb-4">คลิก "เพิ่มรายการ" เพื่อเริ่มต้นใช้งาน!</p>
 
-            {/* Setup Instructions */}
             <div className="bg-blue-50 p-4 rounded-lg mt-4 text-left max-w-md mx-auto">
-              <h5 className="font-semibold text-blue-700 mb-2">First Time Setup:</h5>
+              <h5 className="font-semibold text-blue-700 mb-2">การตั้งค่าครั้งแรก:</h5>
               <ol className="text-sm text-blue-600 space-y-1 list-decimal list-inside">
-                <li>Add Supabase integration</li>
-                <li>Run the database setup scripts</li>
-                <li>Start adding lost items!</li>
+                <li>เพิ่ม Supabase integration</li>
+                <li>รันสคริปต์ตั้งค่าฐานข้อมูล</li>
+                <li>เริ่มเพิ่มรายการของหาย!</li>
               </ol>
             </div>
           </CardContent>
@@ -188,94 +198,94 @@ export default function LostFoundTable() {
       {/* Items Grid */}
       {!databaseError && items.length > 0 && (
         <div className="grid gap-4">
-          {items.map((item) => (
-            <Card key={item.id} className="border-yellow-200 hover:shadow-lg transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-yellow-100 to-blue-100">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-blue-800 text-xl">{item.object_name}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge
-                        variant={item.status === "available" ? "default" : "secondary"}
-                        className={item.status === "available" ? "bg-green-500" : "bg-gray-500"}
-                      >
-                        {item.status === "available" ? "Available" : "Claimed"}
-                      </Badge>
-                      <span className="text-sm text-blue-600 flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(item.found_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    {item.status === "claimed" && item.claimed_by && (
-                      <div className="mt-2 text-sm text-gray-600">
-                        <strong>Claimed by:</strong> {item.claimed_by}
-                        {item.claimed_date && (
-                          <span className="ml-2">on {new Date(item.claimed_date).toLocaleDateString()}</span>
-                        )}
+          {items.map((item) => {
+            const typeDisplay = getItemTypeDisplay(item)
+            return (
+              <Card key={item.id} className="border-yellow-200 hover:shadow-lg transition-shadow">
+                <CardHeader
+                  className={`bg-gradient-to-r from-yellow-100 to-blue-100 ${typeDisplay.bgColor} border-b-2`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className={`${typeDisplay.badgeColor} text-white flex items-center gap-1`}>
+                          {typeDisplay.icon}
+                          {typeDisplay.label}
+                        </Badge>
+                        <CardTitle className="text-blue-800 text-xl">{item.object_name}</CardTitle>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedImage(item.image_url)}
-                      className="bg-white hover:bg-yellow-50 border-yellow-300"
-                    >
-                      <Eye className="h-4 w-4 mr-1" />
-                      View Image
-                    </Button>
-                    {/* Only show Claim button if status is available */}
-                    {item.status === "available" && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge
+                          variant={item.status === "available" ? "default" : "secondary"}
+                          className={item.status === "available" ? "bg-green-500" : "bg-gray-500"}
+                        >
+                          {item.status === "available" ? "ยังไม่ได้รับคืน" : "รับคืนแล้ว"}
+                        </Badge>
+                        <span className="text-sm text-blue-600 flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(item.found_date).toLocaleDateString("th-TH")}
+                        </span>
+                      </div>
+                      {item.status === "claimed" && item.claimed_by && (
+                        <div className="mt-2 text-sm text-gray-600">
+                          <strong>รับคืนโดย:</strong> {item.claimed_by}
+                          {item.claimed_date && (
+                            <span className="ml-2">เมื่อ {new Date(item.claimed_date).toLocaleDateString("th-TH")}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
                       <Button
-                        variant="default"
+                        variant="outline"
                         size="sm"
-                        onClick={() => openClaimModal(item)}
-                        className="bg-green-500 hover:bg-green-600 text-white"
+                        onClick={() => setSelectedImage(item.image_url)}
+                        className="bg-white hover:bg-yellow-50 border-yellow-300"
                       >
-                        Claim Item
+                        <Eye className="h-4 w-4 mr-1" />
+                        ดูรูป
                       </Button>
-                    )}
+                      {item.status === "available" && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => openClaimModal(item)}
+                          className="bg-green-500 hover:bg-green-600 text-white"
+                        >
+                          {item.item_type === "lost" ? "ฉันเป็นเจ้าของ" : "รับของ"}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <h4 className="font-semibold text-blue-700 mb-2">Description</h4>
-                    <p className="text-gray-700 mb-2">
-                      {expandedDescription === item.id ? item.full_description : item.description}
-                    </p>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={() => toggleDescription(item.id)}
-                      className="text-yellow-600 hover:text-yellow-700 p-0 h-auto"
-                    >
-                      {expandedDescription === item.id ? "Show less" : "Click to see more"}
-                    </Button>
-                    <p className="text-sm text-blue-600 mt-2">
-                      <strong>Found at:</strong> {item.location_found}
-                    </p>
-                    {item.claim_notes && item.status === "claimed" && (
-                      <p className="text-sm text-gray-600 mt-2">
-                        <strong>Claim notes:</strong> {item.claim_notes}
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="md:col-span-2">
+                      <h4 className="font-semibold text-blue-700 mb-2">รายละเอียด</h4>
+                      <p className="text-gray-700 mb-2">{item.description}</p>
+                      <p className="text-sm text-blue-600 mt-2">
+                        <strong>{item.item_type === "lost" ? "หายที่:" : "เจอที่:"}</strong> {item.location_found}
                       </p>
-                    )}
+                      {item.claim_notes && item.status === "claimed" && (
+                        <p className="text-sm text-gray-600 mt-2">
+                          <strong>หมายเหตุ:</strong> {item.claim_notes}
+                        </p>
+                      )}
+                    </div>
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h4 className="font-semibold text-blue-700 mb-2 flex items-center gap-1">
+                        <User className="h-4 w-4" />
+                        {item.item_type === "lost" ? "เจ้าของ" : "ผู้พบ"}
+                      </h4>
+                      <p className="text-blue-800 font-medium">
+                        {item.student_number} {item.student_nickname}
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-700 mb-2 flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      Found by
-                    </h4>
-                    <p className="text-blue-800 font-medium">
-                      {item.student_number} {item.student_nickname}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
 
