@@ -263,7 +263,7 @@ export default function LostFoundTable() {
                           onClick={() => openClaimModal(item)}
                           className="bg-green-500 hover:bg-green-600 text-white"
                         >
-                          {item.item_type === "lost" ? "ฉันเป็นเจ้าของ" : "รับของ"}
+                          {item.item_type === "lost" ? "ได้คืนแล้ว" : "คืนแล้ว"}
                         </Button>
                       )}
                     </div>
