@@ -39,7 +39,7 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
         onClose()
       }
     } catch (error: any) {
-      setError(error.message || "Failed to claim item")
+      setError(error.message || "claim ไม่สำเร็จ")
     } finally {
       setLoading(false)
     }

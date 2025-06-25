@@ -24,26 +24,8 @@ interface AddItemModalProps {
 }
 
 const commonLocations = [
-  "Cafeteria",
-  "Library - 1st Floor",
-  "Library - 2nd Floor",
-  "Gymnasium",
-  "Computer Lab 1",
-  "Computer Lab 2",
-  "Computer Lab 3",
-  "Art Room",
-  "Music Room",
-  "Science Lab",
-  "Math Classroom 201",
-  "Math Classroom 202",
-  "English Classroom",
-  "Playground",
-  "Basketball Court",
-  "Football Field",
-  "Main Office",
-  "Parking Lot",
-  "School Gate",
-  "Other",
+  "โรงอาหาร",
+  "อื่นๆ ( ระบุ )",
 ]
 
 export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalProps) {
@@ -85,13 +67,13 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     if (file) {
       // Check file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
-        setSubmitError("Image size must be less than 5MB")
+        setSubmitError("ขนาดภาพต้องต่ำกว่า 5MB")
         return
       }
 
       // Check file type
       if (!file.type.startsWith("image/")) {
-        setSubmitError("Please select a valid image file")
+        setSubmitError("เลือกรูปภาพ ถ้ามี")
         return
       }
 
@@ -105,7 +87,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
         setSubmitError("")
       }
       reader.onerror = () => {
-        setSubmitError("Failed to read image file")
+        setSubmitError("อ่านรูปภาพไม่สำเร็จ")
       }
       reader.readAsDataURL(file)
     }
@@ -168,7 +150,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
         onClose()
       }
     } catch (error: any) {
-      setSubmitError(error.message || "Failed to add item")
+      setSubmitError(error.message || "เพิ่ม object ไม่สำเร็จ")
     } finally {
       setLoading(false)
     }
