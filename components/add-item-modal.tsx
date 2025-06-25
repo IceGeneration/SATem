@@ -9,10 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CalendarIcon, Upload, AlertCircle, X, Search, Package } from "lucide-react"
+import { Upload, AlertCircle, X, Search, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
@@ -32,7 +30,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     student_nickname: "",
     location_found: "",
     custom_location: "",
-    found_date: new Date(),
+    found_date: "",
     item_type: "found" as "lost" | "found",
   })
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
@@ -40,20 +38,6 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState("")
-
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, "0")
-    const day = String(date.getDate()).padStart(2, "0")
-    return `${year}-${month}-${day}`
-  }
-
-  const formatDisplayDate = (date: Date) => {
-    const day = String(date.getDate()).padStart(2, "0")
-    const month = String(date.getMonth() + 1).padStart(2, "0")
-    const year = date.getFullYear()
-    return `${day}/${month}/${year}`
-  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -63,6 +47,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
     if (!formData.student_number.trim()) newErrors.student_number = "กรุณาใส่รหัสนักเรียน"
     if (!formData.student_nickname.trim()) newErrors.student_nickname = "กรุณาใส่ชื่อเล่น"
     if (!formData.location_found) newErrors.location_found = "กรุณาเลือกสถานที่"
+    if (!formData.found_date.trim()) newErrors.found_date = "กรุณาใส่วันที่"
     if (formData.location_found === "อื่นๆ ( ระบุ )" && !formData.custom_location.trim()) {
       newErrors.custom_location = "กรุณาระบุสถานที่"
     }
@@ -130,7 +115,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
         student_nickname: formData.student_nickname.trim(),
         location_found:
           formData.location_found === "อื่นๆ ( ระบุ )" ? formData.custom_location.trim() : formData.location_found,
-        found_date: formatDate(formData.found_date),
+        found_date: formData.found_date.trim(),
         image_url: imageUrl,
         item_type: formData.item_type,
       }
@@ -145,7 +130,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
           student_nickname: "",
           location_found: "",
           custom_location: "",
-          found_date: new Date(),
+          found_date: "",
           item_type: "found",
         })
         setSelectedImage(null)
@@ -175,7 +160,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
       student_nickname: "",
       location_found: "",
       custom_location: "",
-      found_date: new Date(),
+      found_date: "",
       item_type: "found",
     })
     setSelectedImage(null)
@@ -255,36 +240,18 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
 
             {/* Found Date */}
             <div>
-              <Label className="text-blue-700">{formData.item_type === "lost" ? "วันที่หาย" : "วันที่เจอ"} *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal border-yellow-300",
-                      !formData.found_date && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.found_date ? formatDisplayDate(formData.found_date) : "เลือกวันที่"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start" side="bottom">
-                  <Calendar
-                    mode="single"
-                    selected={formData.found_date}
-                    onSelect={(date) => {
-                      if (date) {
-                        setFormData((prev) => ({ ...prev, found_date: date }))
-                        // The popover will automatically close after selection
-                      }
-                    }}
-                    initialFocus
-                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                    className="rounded-md border"
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="found_date" className="text-blue-700">
+                {formData.item_type === "lost" ? "วันที่หาย" : "วันที่เจอ"} *
+              </Label>
+              <Input
+                id="found_date"
+                value={formData.found_date}
+                onChange={(e) => handleInputChange("found_date", e.target.value)}
+                placeholder="วัน/เดือน/ปี เช่น 15/12/2024"
+                className={cn("border-yellow-300 focus:border-blue-500", errors.found_date && "border-red-500")}
+              />
+              {errors.found_date && <p className="text-red-500 text-sm mt-1">{errors.found_date}</p>}
+              <p className="text-xs text-gray-500 mt-1">รูปแบบ: วัน/เดือน/ปี (เช่น 15/12/2024)</p>
             </div>
           </div>
 
