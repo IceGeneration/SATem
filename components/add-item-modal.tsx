@@ -13,7 +13,6 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CalendarIcon, Upload, AlertCircle, X, Search, Package } from "lucide-react"
-import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
@@ -41,6 +40,20 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState("")
+
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+  }
+
+  const formatDisplayDate = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, "0")
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+  }
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -117,7 +130,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
         student_nickname: formData.student_nickname.trim(),
         location_found:
           formData.location_found === "อื่นๆ ( ระบุ )" ? formData.custom_location.trim() : formData.location_found,
-        found_date: format(formData.found_date, "yyyy-MM-dd"),
+        found_date: formatDate(formData.found_date),
         image_url: imageUrl,
         item_type: formData.item_type,
       }
@@ -253,7 +266,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.found_date ? format(formData.found_date, "dd/MM/yyyy") : "เลือกวันที่"}
+                    {formData.found_date ? formatDisplayDate(formData.found_date) : "เลือกวันที่"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">

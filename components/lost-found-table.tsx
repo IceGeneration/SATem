@@ -20,7 +20,7 @@ interface LostFoundItem {
   found_date: string
   location_found: string
   status: "available" | "claimed"
-  item_type: "lost" | "found"
+  item_type?: "lost" | "found"
   claimed_by?: string
   claimed_date?: string
   claim_notes?: string
@@ -133,6 +133,19 @@ export default function LostFoundTable() {
     }
   }
 
+  const formatThaiDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    } catch (error) {
+      return dateString
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -223,15 +236,13 @@ export default function LostFoundTable() {
                         </Badge>
                         <span className="text-sm text-blue-600 flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(item.found_date).toLocaleDateString("th-TH")}
+                          {formatThaiDate(item.found_date)}
                         </span>
                       </div>
                       {item.status === "claimed" && item.claimed_by && (
                         <div className="mt-2 text-sm text-gray-600">
                           <strong>รับคืนโดย:</strong> {item.claimed_by}
-                          {item.claimed_date && (
-                            <span className="ml-2">เมื่อ {new Date(item.claimed_date).toLocaleDateString("th-TH")}</span>
-                          )}
+                          {item.claimed_date && <span className="ml-2">เมื่อ {formatThaiDate(item.claimed_date)}</span>}
                         </div>
                       )}
                     </div>

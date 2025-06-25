@@ -15,15 +15,27 @@ const getSupabaseClient = () => {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 }
 
-// Check if table exists
-const checkTableExists = async (supabase: any) => {
+// Check if table exists and what columns are available
+const checkTableSchema = async (supabase: any) => {
   try {
-    const { data, error } = await supabase.from("lost_found_items").select("id").limit(1)
+    const { data, error } = await supabase.from("lost_found_items").select("*").limit(1)
 
-    // If no error, table exists
-    return !error
+    if (error) {
+      return { exists: false, hasItemType: false }
+    }
+
+    // Check if item_type column exists by trying to select it specifically
+    const { data: itemTypeCheck, error: itemTypeError } = await supabase
+      .from("lost_found_items")
+      .select("item_type")
+      .limit(1)
+
+    return {
+      exists: true,
+      hasItemType: !itemTypeError,
+    }
   } catch (error) {
-    return false
+    return { exists: false, hasItemType: false }
   }
 }
 
@@ -32,21 +44,24 @@ export async function GET() {
     const supabase = getSupabaseClient()
 
     if (!supabase) {
-      // Return empty array with message if Supabase is not configured
       return NextResponse.json([])
     }
 
-    // Check if table exists first
-    const tableExists = await checkTableExists(supabase)
+    const schema = await checkTableSchema(supabase)
 
-    if (!tableExists) {
+    if (!schema.exists) {
       console.log("Table 'lost_found_items' does not exist yet. Please run the database setup scripts.")
       return NextResponse.json([])
     }
 
+    // Select columns based on what's available
+    const selectColumns = schema.hasItemType
+      ? "*"
+      : "id, object_name, description, image_url, student_number, student_nickname, found_date, location_found, status, claimed_by, claimed_date, claim_notes, created_at, updated_at"
+
     const { data, error } = await supabase
       .from("lost_found_items")
-      .select("*")
+      .select(selectColumns)
       .order("found_date", { ascending: false })
 
     if (error) {
@@ -54,7 +69,13 @@ export async function GET() {
       return NextResponse.json([])
     }
 
-    return NextResponse.json(data || [])
+    // Add default item_type if column doesn't exist
+    const processedData = (data || []).map((item: any) => ({
+      ...item,
+      item_type: item.item_type || "found", // Default to "found" if column doesn't exist
+    }))
+
+    return NextResponse.json(processedData)
   } catch (error) {
     console.error("Error fetching lost and found items:", error)
     return NextResponse.json([])
@@ -73,10 +94,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if table exists first
-    const tableExists = await checkTableExists(supabase)
+    const schema = await checkTableSchema(supabase)
 
-    if (!tableExists) {
+    if (!schema.exists) {
       return NextResponse.json(
         {
           error: "Database table not found. Please run the database setup scripts first.",
@@ -85,8 +105,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Server-side data preparation
-    const itemData = {
+    // Prepare data based on available columns
+    const baseItemData = {
       object_name: body.object_name,
       description: body.description,
       image_url: body.image_url || "/placeholder.svg?height=300&width=300",
@@ -94,11 +114,13 @@ export async function POST(request: Request) {
       student_nickname: body.student_nickname,
       found_date: body.found_date,
       location_found: body.location_found,
-      item_type: body.item_type || "found", // Default to "found" if not specified
-      status: "available", // Always set to available on server
+      status: "available",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
+
+    // Add item_type only if the column exists
+    const itemData = schema.hasItemType ? { ...baseItemData, item_type: body.item_type || "found" } : baseItemData
 
     const { data, error } = await supabase.from("lost_found_items").insert([itemData]).select()
 
