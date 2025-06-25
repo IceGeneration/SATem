@@ -62,7 +62,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("lost_found_items")
       .select(selectColumns)
-      .order("found_date", { ascending: false })
+      .order("created_at", { ascending: false }) // Changed from found_date to created_at since found_date is now text
 
     if (error) {
       console.error("Supabase error:", error)
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       image_url: body.image_url || "/placeholder.svg?height=300&width=300",
       student_number: body.student_number,
       student_nickname: body.student_nickname,
-      found_date: body.found_date,
+      found_date: body.found_date, // Now accepts any text format
       location_found: body.location_found,
       status: "available",
       created_at: new Date().toISOString(),
