@@ -134,14 +134,27 @@ export default function LostFoundTable() {
   }
 
   const formatThaiDate = (dateString: string) => {
+    // If it's already a readable text format, just return it
+    if (!dateString) return "ไม่ระบุวันที่"
+
+    // Try to parse as a date, but if it fails, just return the original string
     try {
-      const date = new Date(dateString)
-      return date.toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      // Only try to format if it looks like a standard date format
+      if (dateString.includes("-") && dateString.length >= 8) {
+        const date = new Date(dateString)
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString("th-TH", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        }
+      }
+
+      // For any other format (like "12/04/2669"), just return as-is
+      return dateString
     } catch (error) {
+      // If anything goes wrong, just return the original string
       return dateString
     }
   }
