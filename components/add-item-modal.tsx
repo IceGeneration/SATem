@@ -269,12 +269,17 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                     {formData.found_date ? formatDisplayDate(formData.found_date) : "เลือกวันที่"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={formData.found_date}
-                    onSelect={(date) => date && setFormData((prev) => ({ ...prev, found_date: date }))}
+                    onSelect={(date) => {
+                      if (date) {
+                        setFormData((prev) => ({ ...prev, found_date: date }))
+                      }
+                    }}
                     initialFocus
+                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                   />
                 </PopoverContent>
               </Popover>
