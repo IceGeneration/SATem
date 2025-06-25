@@ -269,17 +269,19 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                     {formData.found_date ? formatDisplayDate(formData.found_date) : "เลือกวันที่"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align="start" side="bottom">
                   <Calendar
                     mode="single"
                     selected={formData.found_date}
                     onSelect={(date) => {
                       if (date) {
                         setFormData((prev) => ({ ...prev, found_date: date }))
+                        // The popover will automatically close after selection
                       }
                     }}
                     initialFocus
                     disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                    className="rounded-md border"
                   />
                 </PopoverContent>
               </Popover>
