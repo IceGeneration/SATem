@@ -8,6 +8,7 @@ import { RefreshCw, Plus, Calendar, User, Trash2, AlertCircle, Newspaper, Eye } 
 import { useAdmin } from "@/contexts/admin-context"
 import AddNewsModal from "@/components/add-news-modal"
 import ImageModal from "@/components/image-modal"
+import RichTextParser from "@/components/rich-text-parser"
 import Image from "next/image"
 
 interface NewsItem {
@@ -212,9 +213,9 @@ export default function NewsSection() {
                 </div>
               </CardHeader>
               <CardContent className="pt-4 bg-white">
-                {/* Text content comes first */}
-                <div className="prose max-w-none mb-4">
-                  <p className="text-gray-700 whitespace-pre-wrap">{item.content}</p>
+                {/* Rich text content comes first */}
+                <div className="mb-4">
+                  <RichTextParser content={item.content} />
                 </div>
 
                 {/* Image comes after text with automatic height and view button */}

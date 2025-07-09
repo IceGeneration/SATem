@@ -1,11 +1,9 @@
 import { Suspense } from "react"
-import Hero from "@/components/hero"
 import LostFoundTable from "@/components/lost-found-table"
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-blue-50">
-      <Hero />
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-blue-800 mb-2">Welcome To</h1>

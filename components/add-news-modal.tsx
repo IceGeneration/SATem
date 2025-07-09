@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, Upload, X } from "lucide-react"
+import { AlertCircle, Upload, X, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
@@ -89,7 +89,7 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
       const submitData = {
         title: formData.title.trim(),
         content: formData.content.trim(),
-        image_url: imagePreview || null, // Include image data
+        image_url: imagePreview || null,
       }
 
       const success = await onAdd(submitData)
@@ -132,7 +132,7 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader className="bg-white">
           <DialogTitle className="text-blue-800 text-xl">เพิ่มข่าวสารใหม่</DialogTitle>
         </DialogHeader>
@@ -144,119 +144,168 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 bg-white">
-          {/* Title */}
-          <div>
-            <Label htmlFor="title" className="text-blue-700">
-              หัวข้อข่าวสาร *
-            </Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleInputChange("title", e.target.value)}
-              placeholder="เช่น ประกาศเรื่องการเปิดเทอม, กิจกรรมพิเศษ"
-              className={cn(
-                "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
-                errors.title && "border-red-500",
-              )}
-            />
-            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-          </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Form Section */}
+          <form onSubmit={handleSubmit} className="space-y-4 bg-white">
+            {/* Title */}
+            <div>
+              <Label htmlFor="title" className="text-blue-700">
+                หัวข้อข่าวสาร *
+              </Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                placeholder="เช่น ประกาศเรื่องการเปิดเทอม, กิจกรรมพิเศษ"
+                className={cn(
+                  "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                  errors.title && "border-red-500",
+                )}
+              />
+              {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+            </div>
 
-          {/* Content */}
-          <div>
-            <Label htmlFor="content" className="text-blue-700">
-              เนื้อหาข่าวสาร *
-            </Label>
-            <Textarea
-              id="content"
-              value={formData.content}
-              onChange={(e) => handleInputChange("content", e.target.value)}
-              placeholder="เขียนเนื้อหาข่าวสารที่ต้องการประกาศ..."
-              rows={8}
-              className={cn(
-                "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
-                errors.content && "border-red-500",
-              )}
-            />
-            {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
-            <p className="text-xs text-gray-500 mt-1">เนื้อหาจะแสดงตามที่พิมพ์ รวมถึงการขึ้นบรรทัดใหม่</p>
-          </div>
+            {/* Content */}
+            <div>
+              <Label htmlFor="content" className="text-blue-700">
+                เนื้อหาข่าวสาร *
+              </Label>
+              <Textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) => handleInputChange("content", e.target.value)}
+                placeholder="เขียนเนื้อหาข่าวสารที่ต้องการประกาศ..."
+                rows={12}
+                className={cn(
+                  "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                  errors.content && "border-red-500",
+                )}
+              />
+              {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
+            </div>
 
-          {/* Image Upload */}
-          <div>
-            <Label className="text-blue-700">รูปภาพประกอบ (ไม่บังคับ)</Label>
-            {imagePreview ? (
-              <div className="border-2 border-gray-300 rounded-lg p-4 bg-white">
-                <div className="relative">
-                  <Image
-                    src={imagePreview || "/placeholder.svg"}
-                    alt="ตัวอย่างรูปภาพข่าวสาร"
-                    width={400}
-                    height={200}
-                    className="mx-auto rounded-lg object-cover max-h-48"
-                  />
+            {/* Image Upload */}
+            <div>
+              <Label className="text-blue-700">รูปภาพประกอบ (ไม่บังคับ)</Label>
+              {imagePreview ? (
+                <div className="border-2 border-gray-300 rounded-lg p-4 bg-white">
+                  <div className="relative">
+                    <Image
+                      src={imagePreview || "/placeholder.svg"}
+                      alt="ตัวอย่างรูปภาพข่าวสาร"
+                      width={400}
+                      height={200}
+                      className="mx-auto rounded-lg object-cover max-h-48"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={removeImage}
+                      className="absolute top-2 right-2"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-green-600 text-center mt-2">เลือกรูปภาพเรียบร้อยแล้ว!</p>
                   <Button
                     type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={removeImage}
-                    className="absolute top-2 right-2"
+                    variant="outline"
+                    onClick={() => document.getElementById("news-image-upload")?.click()}
+                    className="w-full mt-2 bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
                   >
-                    <X className="h-4 w-4" />
+                    <Upload className="h-4 w-4 mr-2" />
+                    เปลี่ยนรูปภาพ
                   </Button>
                 </div>
-                <p className="text-sm text-green-600 text-center mt-2">เลือกรูปภาพเรียบร้อยแล้ว!</p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById("news-image-upload")?.click()}
-                  className="w-full mt-2 bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  เปลี่ยนรูปภาพ
-                </Button>
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-sm text-gray-600 mb-4">อัปโหลดรูปภาพประกอบข่าวสาร</p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => document.getElementById("news-image-upload")?.click()}
-                  className="bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  เลือกรูปภาพ
-                </Button>
-                <p className="text-xs text-gray-500 mt-2">รองรับ: JPG, PNG, GIF (ไม่เกิน 5MB)</p>
-              </div>
-            )}
-            <input
-              type="file"
-              id="news-image-upload"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageSelect}
-            />
-          </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-600 mb-4">อัปโหลดรูปภาพประกอบข่าวสาร</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById("news-image-upload")?.click()}
+                    className="bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    เลือกรูปภาพ
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-2">รองรับ: JPG, PNG, GIF (ไม่เกิน 5MB)</p>
+                </div>
+              )}
+              <input
+                type="file"
+                id="news-image-upload"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageSelect}
+              />
+            </div>
 
-          <DialogFooter className="gap-2 bg-white">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={loading}
-              className="bg-white text-gray-900 border-gray-300"
-            >
-              ยกเลิก
-            </Button>
-            <Button type="submit" disabled={loading} className="bg-green-500 hover:bg-green-600 text-white">
-              {loading ? "กำลังเพิ่ม..." : "เพิ่มข่าวสาร"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="gap-2 bg-white">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={loading}
+                className="bg-white text-gray-900 border-gray-300"
+              >
+                ยกเลิก
+              </Button>
+              <Button type="submit" disabled={loading} className="bg-green-500 hover:bg-green-600 text-white">
+                {loading ? "กำลังเพิ่ม..." : "เพิ่มข่าวสาร"}
+              </Button>
+            </DialogFooter>
+          </form>
+
+          {/* Formatting Help Section */}
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="h-5 w-5 text-blue-600" />
+              <h4 className="font-semibold text-blue-800">การจัดรูปแบบข้อความ</h4>
+            </div>
+
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="font-medium text-blue-700 mb-1">หัวข้อใหญ่:</p>
+                <code className="bg-white px-2 py-1 rounded text-blue-600"># หัวข้อใหญ่</code>
+              </div>
+
+              <div>
+                <p className="font-medium text-blue-700 mb-1">หัวข้อกลาง:</p>
+                <code className="bg-white px-2 py-1 rounded text-blue-600">## หัวข้อกลาง</code>
+              </div>
+
+              <div>
+                <p className="font-medium text-blue-700 mb-1">หัวข้อเล็ก:</p>
+                <code className="bg-white px-2 py-1 rounded text-blue-600">### หัวข้อเล็ก</code>
+              </div>
+
+              <div>
+                <p className="font-medium text-blue-700 mb-1">ตัวหนา:</p>
+                <code className="bg-white px-2 py-1 rounded text-blue-600">**ข้อความตัวหนา**</code>
+              </div>
+
+              <div>
+                <p className="font-medium text-blue-700 mb-1">ข้อความสี:</p>
+                <code className="bg-white px-2 py-1 rounded text-blue-600 text-xs">
+                  [[&lt;font color="#FF0000"&gt;ข้อความสีแดง&lt;/font&gt;]]
+                </code>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-white rounded border">
+              <p className="font-medium text-blue-700 mb-2">ตัวอย่าง:</p>
+              <div className="text-xs space-y-1">
+                <div># ประกาศสำคัญ!</div>
+                <div>วันนี้เราจะมี **กิจกรรมพิเศษ**</div>
+                <div>## อ่านด้วย</div>
+                <div>[[&lt;font color="#FF0000"&gt;ข้อความสีแดง&lt;/font&gt;]]</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )
