@@ -17,7 +17,7 @@ export default function Topbar() {
 
   return (
     <>
-      <div className="bg-white shadow-md border-b-2 border-yellow-300">
+      <div className="bg-white shadow-md border-b-2 border-yellow-300 relative z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo/Title */}
@@ -57,7 +57,7 @@ export default function Topbar() {
                 className="flex items-center gap-2 text-blue-700 hover:bg-blue-50"
               >
                 <Shield className="h-4 w-4" />
-                แอดมินของหาย
+                แอดมิน
                 {isLoggedIn && <span className="ml-1 px-2 py-1 bg-green-500 text-white text-xs rounded-full">●</span>}
               </Button>
             </div>

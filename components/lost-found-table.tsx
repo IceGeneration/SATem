@@ -134,12 +134,9 @@ export default function LostFoundTable() {
   }
 
   const formatThaiDate = (dateString: string) => {
-    // If it's already a readable text format, just return it
     if (!dateString) return "ไม่ระบุวันที่"
 
-    // Try to parse as a date, but if it fails, just return the original string
     try {
-      // Only try to format if it looks like a standard date format
       if (dateString.includes("-") && dateString.length >= 8) {
         const date = new Date(dateString)
         if (!isNaN(date.getTime())) {
@@ -150,11 +147,8 @@ export default function LostFoundTable() {
           })
         }
       }
-
-      // For any other format (like "12/04/2669"), just return as-is
       return dateString
     } catch (error) {
-      // If anything goes wrong, just return the original string
       return dateString
     }
   }
@@ -190,9 +184,9 @@ export default function LostFoundTable() {
 
       {/* Database Error Alert */}
       {databaseError && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="bg-red-50 border-red-200">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
+          <AlertDescription className="text-red-800">
             <strong>ข้อผิดพลาดฐานข้อมูล:</strong> {databaseError}
             <br />
             <span className="text-sm mt-1 block">กรุณาตรวจสอบการตั้งค่า Supabase และการสร้างตารางฐานข้อมูล</span>
@@ -200,16 +194,16 @@ export default function LostFoundTable() {
         </Alert>
       )}
 
-      {/* Setup Instructions */}
+      {/* Setup Instructions - This will now appear BELOW the hero section */}
       {!databaseError && items.length === 0 && (
-        <Card className="border-gray-200 bg-white">
+        <Card className="border-yellow-200 bg-white shadow-lg">
           <CardContent className="text-center py-12 bg-white">
             <Database className="mx-auto h-16 w-16 text-blue-400 mb-4" />
             <h4 className="text-xl font-semibold text-blue-800 mb-2">ยินดีต้อนรับสู่ศูนย์รวมของหาย!</h4>
             <p className="text-blue-600 text-lg mb-2">ยังไม่มีรายการในขณะนี้</p>
             <p className="text-blue-500 text-sm mb-4">คลิก "เพิ่มรายการ" เพื่อเริ่มต้นใช้งาน!</p>
 
-            <div className="bg-blue-50 p-4 rounded-lg mt-4 text-left max-w-md mx-auto">
+            <div className="bg-yellow-50 p-4 rounded-lg mt-4 text-left max-w-md mx-auto border border-yellow-200">
               <h5 className="font-semibold text-blue-700 mb-2">การตั้งค่าครั้งแรก:</h5>
               <ol className="text-sm text-blue-600 space-y-1 list-decimal list-inside">
                 <li>เพิ่ม Supabase integration</li>
@@ -227,8 +221,8 @@ export default function LostFoundTable() {
           {items.map((item) => {
             const typeDisplay = getItemTypeDisplay(item)
             return (
-              <Card key={item.id} className="border-gray-200 hover:shadow-lg transition-shadow bg-white">
-                <CardHeader className="bg-gray-50 border-b-2">
+              <Card key={item.id} className="border-yellow-200 hover:shadow-lg transition-shadow bg-white shadow-md">
+                <CardHeader className="bg-gradient-to-r from-yellow-100 to-blue-100 border-b-2 border-yellow-200">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -280,7 +274,7 @@ export default function LostFoundTable() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-4 bg-white">
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="md:col-span-2">
                       <h4 className="font-semibold text-blue-700 mb-2">รายละเอียด</h4>
@@ -294,7 +288,7 @@ export default function LostFoundTable() {
                         </p>
                       )}
                     </div>
-                    <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                       <h4 className="font-semibold text-blue-700 mb-2 flex items-center gap-1">
                         <User className="h-4 w-4" />
                         {item.item_type === "lost" ? "เจ้าของ" : "ผู้พบ"}

@@ -11,12 +11,12 @@ interface ImageModalProps {
 export default function ImageModal({ imageUrl, onClose }: ImageModalProps) {
   return (
     <Dialog open={!!imageUrl} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="text-blue-800">Item Image</DialogTitle>
+      <DialogContent className="max-w-3xl bg-white">
+        <DialogHeader className="bg-white">
+          <DialogTitle className="text-blue-800">รูปภาพของ</DialogTitle>
         </DialogHeader>
         {imageUrl && (
-          <div className="relative w-full h-96">
+          <div className="relative w-full h-96 bg-white">
             <Image
               src={imageUrl.startsWith("data:") ? imageUrl : imageUrl || "/placeholder.svg"}
               alt="Lost item"

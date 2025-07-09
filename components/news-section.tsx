@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { RefreshCw, Plus, Calendar, User, Trash2, AlertCircle, Newspaper } from "lucide-react"
+import { RefreshCw, Plus, Calendar, User, Trash2, AlertCircle, Newspaper, Eye } from "lucide-react"
 import { useAdmin } from "@/contexts/admin-context"
 import AddNewsModal from "@/components/add-news-modal"
+import ImageModal from "@/components/image-modal"
 import Image from "next/image"
 
 interface NewsItem {
@@ -14,7 +15,7 @@ interface NewsItem {
   title: string
   content: string
   admin_name: string
-  image_url?: string | null // Add image support
+  image_url?: string | null
   created_at: string
   updated_at: string
 }
@@ -23,6 +24,7 @@ export default function NewsSection() {
   const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [addModalOpen, setAddModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [databaseError, setDatabaseError] = useState<string | null>(null)
   const { isLoggedIn, adminName } = useAdmin()
 
@@ -151,9 +153,9 @@ export default function NewsSection() {
 
       {/* Database Error Alert */}
       {databaseError && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="bg-red-50 border-red-200">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
+          <AlertDescription className="text-red-800">
             <strong>ข้อผิดพลาดฐานข้อมูล:</strong> {databaseError}
             <br />
             <span className="text-sm mt-1 block">กรุณาตรวจสอบการตั้งค่า Supabase และการสร้างตารางฐานข้อมูล</span>
@@ -163,7 +165,7 @@ export default function NewsSection() {
 
       {/* Empty State */}
       {!databaseError && news.length === 0 && (
-        <Card className="border-gray-200 bg-white">
+        <Card className="border-yellow-200 bg-white shadow-lg">
           <CardContent className="text-center py-12 bg-white">
             <Newspaper className="mx-auto h-16 w-16 text-blue-400 mb-4" />
             <h4 className="text-xl font-semibold text-blue-800 mb-2">ยังไม่มีข่าวสาร</h4>
@@ -181,8 +183,8 @@ export default function NewsSection() {
       {!databaseError && news.length > 0 && (
         <div className="space-y-4">
           {news.map((item) => (
-            <Card key={item.id} className="border-gray-200 hover:shadow-lg transition-shadow bg-white">
-              <CardHeader className="bg-gray-50 border-b">
+            <Card key={item.id} className="border-yellow-200 hover:shadow-lg transition-shadow bg-white shadow-md">
+              <CardHeader className="bg-gradient-to-r from-yellow-100 to-blue-100 border-b-2 border-yellow-200">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <CardTitle className="text-blue-800 text-xl mb-2">{item.title}</CardTitle>
@@ -202,7 +204,7 @@ export default function NewsSection() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDeleteNews(item.id)}
-                      className="text-red-600 border-red-300 hover:bg-red-50"
+                      className="text-red-600 border-red-300 hover:bg-red-50 bg-white"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -210,20 +212,33 @@ export default function NewsSection() {
                 </div>
               </CardHeader>
               <CardContent className="pt-4 bg-white">
+                {/* Text content comes first */}
+                <div className="prose max-w-none mb-4">
+                  <p className="text-gray-700 whitespace-pre-wrap">{item.content}</p>
+                </div>
+
+                {/* Image comes after text with automatic height and view button */}
                 {item.image_url && (
-                  <div className="mb-4">
+                  <div className="relative inline-block">
                     <Image
                       src={item.image_url || "/placeholder.svg"}
                       alt={item.title}
                       width={600}
-                      height={300}
-                      className="w-full h-48 object-cover rounded-lg"
+                      height={0}
+                      className="w-full h-auto object-cover rounded-lg border border-yellow-200"
+                      style={{ height: "auto" }}
                     />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setSelectedImage(item.image_url)}
+                      className="absolute bottom-2 right-2 bg-black/70 hover:bg-black/90 text-white border-0"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      ดูเต็ม
+                    </Button>
                   </div>
                 )}
-                <div className="prose max-w-none">
-                  <p className="text-gray-700 whitespace-pre-wrap">{item.content}</p>
-                </div>
               </CardContent>
             </Card>
           ))}
@@ -231,6 +246,7 @@ export default function NewsSection() {
       )}
 
       <AddNewsModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddNews} />
+      <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />
     </div>
   )
 }
