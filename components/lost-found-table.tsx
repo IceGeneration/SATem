@@ -202,8 +202,8 @@ export default function LostFoundTable() {
 
       {/* Setup Instructions */}
       {!databaseError && items.length === 0 && (
-        <Card className="border-yellow-200">
-          <CardContent className="text-center py-12">
+        <Card className="border-gray-200 bg-white">
+          <CardContent className="text-center py-12 bg-white">
             <Database className="mx-auto h-16 w-16 text-blue-400 mb-4" />
             <h4 className="text-xl font-semibold text-blue-800 mb-2">ยินดีต้อนรับสู่ศูนย์รวมของหาย!</h4>
             <p className="text-blue-600 text-lg mb-2">ยังไม่มีรายการในขณะนี้</p>
@@ -227,10 +227,8 @@ export default function LostFoundTable() {
           {items.map((item) => {
             const typeDisplay = getItemTypeDisplay(item)
             return (
-              <Card key={item.id} className="border-yellow-200 hover:shadow-lg transition-shadow">
-                <CardHeader
-                  className={`bg-gradient-to-r from-yellow-100 to-blue-100 ${typeDisplay.bgColor} border-b-2`}
-                >
+              <Card key={item.id} className="border-gray-200 hover:shadow-lg transition-shadow bg-white">
+                <CardHeader className="bg-gray-50 border-b-2">
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2 mb-2">

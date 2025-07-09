@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Upload, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface AddNewsModalProps {
   isOpen: boolean
@@ -23,6 +24,8 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
     title: "",
     content: "",
   })
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState("")
@@ -37,6 +40,43 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
     return Object.keys(newErrors).length === 0
   }
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setSubmitError("ขนาดภาพต้องไม่เกิน 5MB")
+        return
+      }
+
+      if (!file.type.startsWith("image/")) {
+        setSubmitError("กรุณาเลือกไฟล์รูปภาพ")
+        return
+      }
+
+      setSelectedImage(file)
+
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setImagePreview(result)
+        setSubmitError("")
+      }
+      reader.onerror = () => {
+        setSubmitError("ไม่สามารถอ่านไฟล์รูปภาพได้")
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setSelectedImage(null)
+    setImagePreview(null)
+    const fileInput = document.getElementById("news-image-upload") as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ""
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -46,16 +86,21 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
     setSubmitError("")
 
     try {
-      const success = await onAdd({
+      const submitData = {
         title: formData.title.trim(),
         content: formData.content.trim(),
-      })
+        image_url: imagePreview || null, // Include image data
+      }
+
+      const success = await onAdd(submitData)
 
       if (success) {
         setFormData({
           title: "",
           content: "",
         })
+        setSelectedImage(null)
+        setImagePreview(null)
         setErrors({})
         onClose()
       }
@@ -78,6 +123,8 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
       title: "",
       content: "",
     })
+    setSelectedImage(null)
+    setImagePreview(null)
     setErrors({})
     setSubmitError("")
     onClose()
@@ -85,7 +132,7 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
           <DialogTitle className="text-blue-800 text-xl">เพิ่มข่าวสารใหม่</DialogTitle>
         </DialogHeader>
@@ -108,7 +155,7 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
               value={formData.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="เช่น ประกาศเรื่องการเปิดเทอม, กิจกรรมพิเศษ"
-              className={cn("border-yellow-300 focus:border-blue-500", errors.title && "border-red-500")}
+              className={cn("border-gray-300 focus:border-blue-500 bg-white", errors.title && "border-red-500")}
             />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
           </div>
@@ -124,10 +171,69 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
               onChange={(e) => handleInputChange("content", e.target.value)}
               placeholder="เขียนเนื้อหาข่าวสารที่ต้องการประกาศ..."
               rows={8}
-              className={cn("border-yellow-300 focus:border-blue-500", errors.content && "border-red-500")}
+              className={cn("border-gray-300 focus:border-blue-500 bg-white", errors.content && "border-red-500")}
             />
             {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
             <p className="text-xs text-gray-500 mt-1">เนื้อหาจะแสดงตามที่พิมพ์ รวมถึงการขึ้นบรรทัดใหม่</p>
+          </div>
+
+          {/* Image Upload */}
+          <div>
+            <Label className="text-blue-700">รูปภาพประกอบ (ไม่บังคับ)</Label>
+            {imagePreview ? (
+              <div className="border-2 border-gray-300 rounded-lg p-4 bg-white">
+                <div className="relative">
+                  <Image
+                    src={imagePreview || "/placeholder.svg"}
+                    alt="ตัวอย่างรูปภาพข่าวสาร"
+                    width={400}
+                    height={200}
+                    className="mx-auto rounded-lg object-cover max-h-48"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-sm text-green-600 text-center mt-2">เลือกรูปภาพเรียบร้อยแล้ว!</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("news-image-upload")?.click()}
+                  className="w-full mt-2 bg-white hover:bg-gray-50 border-gray-300"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  เปลี่ยนรูปภาพ
+                </Button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-2 text-sm text-gray-600 mb-4">อัปโหลดรูปภาพประกอบข่าวสาร</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("news-image-upload")?.click()}
+                  className="bg-white hover:bg-gray-50 border-gray-300"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  เลือกรูปภาพ
+                </Button>
+                <p className="text-xs text-gray-500 mt-2">รองรับ: JPG, PNG, GIF (ไม่เกิน 5MB)</p>
+              </div>
+            )}
+            <input
+              type="file"
+              id="news-image-upload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageSelect}
+            />
           </div>
 
           <DialogFooter className="gap-2">

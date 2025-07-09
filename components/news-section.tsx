@@ -7,12 +7,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { RefreshCw, Plus, Calendar, User, Trash2, AlertCircle, Newspaper } from "lucide-react"
 import { useAdmin } from "@/contexts/admin-context"
 import AddNewsModal from "@/components/add-news-modal"
+import Image from "next/image"
 
 interface NewsItem {
   id: number
   title: string
   content: string
   admin_name: string
+  image_url?: string | null // Add image support
   created_at: string
   updated_at: string
 }
@@ -161,8 +163,8 @@ export default function NewsSection() {
 
       {/* Empty State */}
       {!databaseError && news.length === 0 && (
-        <Card className="border-yellow-200">
-          <CardContent className="text-center py-12">
+        <Card className="border-gray-200 bg-white">
+          <CardContent className="text-center py-12 bg-white">
             <Newspaper className="mx-auto h-16 w-16 text-blue-400 mb-4" />
             <h4 className="text-xl font-semibold text-blue-800 mb-2">ยังไม่มีข่าวสาร</h4>
             <p className="text-blue-600 text-lg mb-2">ยังไม่มีข่าวสารในขณะนี้</p>
@@ -179,8 +181,8 @@ export default function NewsSection() {
       {!databaseError && news.length > 0 && (
         <div className="space-y-4">
           {news.map((item) => (
-            <Card key={item.id} className="border-yellow-200 hover:shadow-lg transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-yellow-100 to-blue-100 border-b-2">
+            <Card key={item.id} className="border-gray-200 hover:shadow-lg transition-shadow bg-white">
+              <CardHeader className="bg-gray-50 border-b">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <CardTitle className="text-blue-800 text-xl mb-2">{item.title}</CardTitle>
@@ -207,7 +209,18 @@ export default function NewsSection() {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="pt-4">
+              <CardContent className="pt-4 bg-white">
+                {item.image_url && (
+                  <div className="mb-4">
+                    <Image
+                      src={item.image_url || "/placeholder.svg"}
+                      alt={item.title}
+                      width={600}
+                      height={300}
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                  </div>
+                )}
                 <div className="prose max-w-none">
                   <p className="text-gray-700 whitespace-pre-wrap">{item.content}</p>
                 </div>

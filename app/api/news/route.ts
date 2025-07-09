@@ -79,6 +79,7 @@ export async function POST(request: Request) {
       title: body.title,
       content: body.content,
       admin_name: body.admin_name,
+      image_url: body.image_url || null, // Add image support
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
