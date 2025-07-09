@@ -172,19 +172,19 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+        <DialogHeader className="bg-white">
           <DialogTitle className="text-blue-800 text-xl">เพิ่มรายการใหม่</DialogTitle>
         </DialogHeader>
 
         {submitError && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="bg-red-50 border-red-200">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{submitError}</AlertDescription>
+            <AlertDescription className="text-red-800">{submitError}</AlertDescription>
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white">
           {/* Item Type Selection */}
           <div className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
             <Label className="text-blue-700 text-base font-semibold mb-3 block">ประเภทรายการ *</Label>
@@ -233,7 +233,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                 value={formData.object_name}
                 onChange={(e) => handleInputChange("object_name", e.target.value)}
                 placeholder="เช่น กระติกน้ำ, กระเป๋านักเรียน"
-                className={cn("border-yellow-300 focus:border-blue-500", errors.object_name && "border-red-500")}
+                className={cn(
+                  "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                  errors.object_name && "border-red-500",
+                )}
               />
               {errors.object_name && <p className="text-red-500 text-sm mt-1">{errors.object_name}</p>}
             </div>
@@ -248,7 +251,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                 value={formData.found_date}
                 onChange={(e) => handleInputChange("found_date", e.target.value)}
                 placeholder="วัน/เดือน/ปี เช่น 15/12/2024"
-                className={cn("border-yellow-300 focus:border-blue-500", errors.found_date && "border-red-500")}
+                className={cn(
+                  "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                  errors.found_date && "border-red-500",
+                )}
               />
               {errors.found_date && <p className="text-red-500 text-sm mt-1">{errors.found_date}</p>}
               <p className="text-xs text-gray-500 mt-1">รูปแบบ: วัน/เดือน/ปี (เช่น 15/12/2024)</p>
@@ -270,7 +276,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                   : "อธิบายของที่เจอ เช่น สี ขนาด ลักษณะพิเศษ..."
               }
               rows={4}
-              className={cn("border-yellow-300 focus:border-blue-500", errors.description && "border-red-500")}
+              className={cn(
+                "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                errors.description && "border-red-500",
+              )}
             />
             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
           </div>
@@ -283,13 +292,16 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
               onValueChange={(value) => handleInputChange("location_found", value)}
             >
               <SelectTrigger
-                className={cn("border-yellow-300 focus:border-blue-500", errors.location_found && "border-red-500")}
+                className={cn(
+                  "border-gray-300 focus:border-blue-500 bg-white text-gray-900",
+                  errors.location_found && "border-red-500",
+                )}
               >
                 <SelectValue placeholder="เลือกสถานที่" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {commonLocations.map((location) => (
-                  <SelectItem key={location} value={location}>
+                  <SelectItem key={location} value={location} className="text-gray-900">
                     {location}
                   </SelectItem>
                 ))}
@@ -309,7 +321,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                 value={formData.custom_location}
                 onChange={(e) => handleInputChange("custom_location", e.target.value)}
                 placeholder="กรุณาระบุสถานที่ที่แน่นอน"
-                className={cn("border-yellow-300 focus:border-blue-500", errors.custom_location && "border-red-500")}
+                className={cn(
+                  "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                  errors.custom_location && "border-red-500",
+                )}
               />
               {errors.custom_location && <p className="text-red-500 text-sm mt-1">{errors.custom_location}</p>}
             </div>
@@ -330,7 +345,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                   value={formData.student_number}
                   onChange={(e) => handleInputChange("student_number", e.target.value)}
                   placeholder="เช่น 30234"
-                  className={cn("border-yellow-300 focus:border-blue-500", errors.student_number && "border-red-500")}
+                  className={cn(
+                    "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                    errors.student_number && "border-red-500",
+                  )}
                 />
                 {errors.student_number && <p className="text-red-500 text-sm mt-1">{errors.student_number}</p>}
               </div>
@@ -343,7 +361,10 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                   value={formData.student_nickname}
                   onChange={(e) => handleInputChange("student_nickname", e.target.value)}
                   placeholder="เช่น ไอซ์"
-                  className={cn("border-yellow-300 focus:border-blue-500", errors.student_nickname && "border-red-500")}
+                  className={cn(
+                    "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                    errors.student_nickname && "border-red-500",
+                  )}
                 />
                 {errors.student_nickname && <p className="text-red-500 text-sm mt-1">{errors.student_nickname}</p>}
               </div>
@@ -354,7 +375,7 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
           <div>
             <Label className="text-blue-700">รูปภาพ (Optional)</Label>
             {imagePreview ? (
-              <div className="border-2 border-yellow-300 rounded-lg p-4">
+              <div className="border-2 border-gray-300 rounded-lg p-4 bg-white">
                 <div className="relative">
                   <Image
                     src={imagePreview || "/placeholder.svg"}
@@ -378,21 +399,21 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById("image-upload")?.click()}
-                  className="w-full mt-2 bg-white hover:bg-yellow-50 border-yellow-300"
+                  className="w-full mt-2 bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   เปลี่ยนรูปภาพ
                 </Button>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-yellow-300 rounded-lg p-6 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
                 <Upload className="mx-auto h-12 w-12 text-gray-400" />
                 <p className="mt-2 text-sm text-gray-600 mb-4">อัปโหลดรูปภาพของ</p>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById("image-upload")?.click()}
-                  className="bg-white hover:bg-yellow-50 border-yellow-300"
+                  className="bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   เลือกรูปภาพ
@@ -403,8 +424,14 @@ export default function AddItemModal({ isOpen, onClose, onAdd }: AddItemModalPro
             <input type="file" id="image-upload" accept="image/*" className="hidden" onChange={handleImageSelect} />
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+          <DialogFooter className="gap-2 bg-white">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={loading}
+              className="bg-white text-gray-900 border-gray-300"
+            >
               ยกเลิก
             </Button>
             <Button type="submit" disabled={loading} className="bg-green-500 hover:bg-green-600 text-white">

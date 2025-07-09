@@ -133,18 +133,18 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
-        <DialogHeader>
+        <DialogHeader className="bg-white">
           <DialogTitle className="text-blue-800 text-xl">เพิ่มข่าวสารใหม่</DialogTitle>
         </DialogHeader>
 
         {submitError && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="bg-red-50 border-red-200">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{submitError}</AlertDescription>
+            <AlertDescription className="text-red-800">{submitError}</AlertDescription>
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white">
           {/* Title */}
           <div>
             <Label htmlFor="title" className="text-blue-700">
@@ -155,7 +155,10 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
               value={formData.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="เช่น ประกาศเรื่องการเปิดเทอม, กิจกรรมพิเศษ"
-              className={cn("border-gray-300 focus:border-blue-500 bg-white", errors.title && "border-red-500")}
+              className={cn(
+                "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                errors.title && "border-red-500",
+              )}
             />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
           </div>
@@ -171,7 +174,10 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
               onChange={(e) => handleInputChange("content", e.target.value)}
               placeholder="เขียนเนื้อหาข่าวสารที่ต้องการประกาศ..."
               rows={8}
-              className={cn("border-gray-300 focus:border-blue-500 bg-white", errors.content && "border-red-500")}
+              className={cn(
+                "border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500",
+                errors.content && "border-red-500",
+              )}
             />
             {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
             <p className="text-xs text-gray-500 mt-1">เนื้อหาจะแสดงตามที่พิมพ์ รวมถึงการขึ้นบรรทัดใหม่</p>
@@ -205,7 +211,7 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById("news-image-upload")?.click()}
-                  className="w-full mt-2 bg-white hover:bg-gray-50 border-gray-300"
+                  className="w-full mt-2 bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   เปลี่ยนรูปภาพ
@@ -219,7 +225,7 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById("news-image-upload")?.click()}
-                  className="bg-white hover:bg-gray-50 border-gray-300"
+                  className="bg-white hover:bg-gray-50 border-gray-300 text-gray-900"
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   เลือกรูปภาพ
@@ -236,8 +242,14 @@ export default function AddNewsModal({ isOpen, onClose, onAdd }: AddNewsModalPro
             />
           </div>
 
-          <DialogFooter className="gap-2">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+          <DialogFooter className="gap-2 bg-white">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={loading}
+              className="bg-white text-gray-900 border-gray-300"
+            >
               ยกเลิก
             </Button>
             <Button type="submit" disabled={loading} className="bg-green-500 hover:bg-green-600 text-white">

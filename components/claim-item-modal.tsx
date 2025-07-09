@@ -70,19 +70,19 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md bg-white">
+        <DialogHeader className="bg-white">
           <DialogTitle className="text-blue-800">{getModalTitle()}</DialogTitle>
         </DialogHeader>
 
         {error && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="bg-red-50 border-red-200">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white">
           <div>
             <Label htmlFor="claimedBy" className="text-blue-700">
               {item?.item_type === "lost" ? "ข้อมูลผู้รับคืน" : "ข้อมูลผู้รับ"} (รหัสนักเรียน และ ชื่อเล่น) *
@@ -93,7 +93,7 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
               onChange={(e) => setClaimedBy(e.target.value)}
               placeholder="เช่น 30234 ไอซ์"
               required
-              className="border-yellow-300 focus:border-blue-500"
+              className="border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500"
             />
           </div>
           <div>
@@ -105,11 +105,17 @@ export default function ClaimItemModal({ item, isOpen, onClose, onClaim }: Claim
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="ข้อมูลเพิ่มเติม..."
-              className="border-yellow-300 focus:border-blue-500"
+              className="border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500"
             />
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+          <DialogFooter className="bg-white">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={loading}
+              className="bg-white text-gray-900 border-gray-300"
+            >
               ยกเลิก
             </Button>
             <Button

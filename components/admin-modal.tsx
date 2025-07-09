@@ -50,20 +50,25 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md bg-white">
+        <DialogHeader className="bg-white">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-blue-800 flex items-center gap-2">
               <Shield className="h-5 w-5" />
               แอดมินของหาย
             </DialogTitle>
-            <Button variant="ghost" size="sm" onClick={handleClose} className="h-6 w-6 p-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="h-6 w-6 p-0 text-gray-500 hover:text-gray-700"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 bg-white">
           {isLoggedIn ? (
             // Logged in state
             <div className="text-center space-y-4">
@@ -82,7 +87,7 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  className="w-full flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-50 bg-transparent"
+                  className="w-full flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-50 bg-white"
                 >
                   <LogOut className="h-4 w-4" />
                   ออกจากระบบ
@@ -93,9 +98,9 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
             // Login form
             <form onSubmit={handleLogin} className="space-y-4">
               {error && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="bg-red-50 border-red-200">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -110,7 +115,7 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="กรุณาใส่ชื่อผู้ใช้"
                   required
-                  className="border-yellow-300 focus:border-blue-500"
+                  className="border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500"
                 />
               </div>
 
@@ -125,12 +130,17 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="กรุณาใส่รหัสผ่าน"
                   required
-                  className="border-yellow-300 focus:border-blue-500"
+                  className="border-gray-300 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-500"
                 />
               </div>
 
               <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={handleClose} className="flex-1 bg-transparent">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  className="flex-1 bg-white text-gray-900 border-gray-300"
+                >
                   ปิด
                 </Button>
                 <Button
